@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drishti — AI Vision Assistant</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #0a0a0a;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 16px;
+        }
+
+        .status-bar {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 50px;
+            padding: 10px 24px;
+            margin-bottom: 40px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .status-bar span {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            color: white;
+        }
+
+        .btn:hover { border-color: #667eea; transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn .icon { font-size: 36px; margin-bottom: 12px; }
+        .btn .label { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+        .btn .hint { font-size: 12px; color: #666; }
+
+        .btn.detect { border-color: #3b82f6; }
+        .btn.read { border-color: #f59e0b; }
+        .btn.scene { border-color: #8b5cf6; }
+        .btn.currency { border-color: #10b981; }
+
+        .btn.loading {
+            opacity: 0.6;
+            pointer-events: none;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .result-box {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-box p {
+            color: #ccc;
+            font-size: 16px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .result-box p.active {
+            color: white;
+            font-size: 18px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 20px 0;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #333;
+            display: none;
+        }
+
+        video { width: 100%; display: block; }
+
+        .footer {
+            margin-top: 40px;
+            color: #444;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Drishti</h1>
+        <p>AI Vision Assistant for the Visually Impaired</p>
+    </div>
+
+    <div class="status-bar">
+        Server status: <span id="status">Checking...</span>
+    </div>
+
+    <div class="camera-preview">
+        <video id="video" autoplay playsinline></video>
+    </div>
+
+    <div class="buttons-grid">
+        <div class="btn detect" onclick="runFeature('detect')">
+            <div class="icon">👁️</div>
+            <div class="label">Detect Objects</div>
+            <div class="hint">What is in front of me?</div>
+        </div>
+        <div class="btn read" onclick="runFeature('read')">
+            <div class="icon">📖</div>
+            <div class="label">Read Text</div>
+            <div class="hint">Read medicine / signs</div>
+        </div>
+        <div class="btn scene" onclick="runFeature('scene')">
+            <div class="icon">🌍</div>
+            <div class="label">Describe Scene</div>
+            <div class="hint">Describe surroundings</div>
+        </div>
+        <div class="btn currency" onclick="runFeature('currency')">
+            <div class="icon">💵</div>
+            <div class="label">Detect Currency</div>
+            <div class="hint">Identify rupee notes</div>
+        </div>
+    </div>
+
+    <div class="result-box">
+        <p id="result">Click any button to start</p>
+    </div>
+
+    <div class="footer">Drishti — Seeing the world through AI</div>
+
+    <script>
+        let videoStream = null;
+
+        // Check server status
+        async function checkStatus() {
+            try {
+                const res = await fetch('http://127.0.0.1:5000/health');
+                const data = await res.json();
+                if (data.status === 'running') {
+                    document.getElementById('status').textContent = 'Online ✓';
+                }
+            } catch {
+                document.getElementById('status').textContent = 'Offline ✗';
+                document.getElementById('status').style.color = '#ef4444';
+            }
+        }
+
+        // Start camera
+        async function startCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('video');
+                video.srcObject = videoStream;
+                document.querySelector('.camera-preview').style.display = 'block';
+            } catch (e) {
+                console.log('Camera error:', e);
+            }
+        }
+
+        // Capture frame from camera
+        function captureFrame() {
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            return canvas.toDataURL('image/jpeg').split(',')[1];
+        }
+
+        // Speak result
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.lang = 'en-IN';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Run feature
+        async function runFeature(feature) {
+            const btn = document.querySelector(`.btn.${feature}`);
+            const resultEl = document.getElementById('result');
+
+            btn.classList.add('loading');
+            resultEl.className = '';
+            resultEl.textContent = 'Processing...';
+
+            try {
+                const image = captureFrame();
+                const res = await fetch(`http://127.0.0.1:5000/${feature}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image })
+                });
+
+                const data = await res.json();
+                resultEl.className = 'active';
+                resultEl.textContent = data.result;
+                speak(data.result);
+
+            } catch (e) {
+                resultEl.textContent = 'Error connecting to server. Make sure Flask is running.';
+            }
+
+            btn.classList.remove('loading');
+        }
+
+        // Init
+        checkStatus();
+        startCamera();
+        setInterval(checkStatus, 5000);
+    </script>
+</body>
+</html>
