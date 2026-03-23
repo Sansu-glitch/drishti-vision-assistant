@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 import base64
 import numpy as np
 import cv2
+import io
+from gtts import gTTS
 from modules.vision import detect_objects
 from modules.ocr import read_text_from_camera
 from modules.scene import describe_scene
@@ -58,6 +60,20 @@ def currency():
         frame = decode_image(data['image'])
         result = detect_currency(frame)
         return jsonify({'result': result, 'status': 'success'})
+    except Exception as e:
+        return jsonify({'result': str(e), 'status': 'error'})
+
+@app.route('/speak', methods=['POST'])
+def speak_text():
+    try:
+        data = request.json
+        text = data.get('text', '')
+        lang = data.get('lang', 'en')
+        tts = gTTS(text=text, lang=lang)
+        audio_fp = io.BytesIO()
+        tts.write_to_fp(audio_fp)
+        audio_fp.seek(0)
+        return send_file(audio_fp, mimetype='audio/mpeg')
     except Exception as e:
         return jsonify({'result': str(e), 'status': 'error'})
 
