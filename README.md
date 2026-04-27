@@ -1,3 +1,13 @@
+---
+title: Drishti Vision Assistant
+emoji: 👁️
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+pinned: true
+app_port: 7860
+---
+
 # Drishti — AI Vision Assistant
 
 An AI powered wearable vision assistant for visually impaired and elderly people in India.
