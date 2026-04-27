@@ -34,7 +34,6 @@
             100% { transform: translate(2%,2%); }
         }
 
-        /* ── Header ── */
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 {
             font-size: 56px; font-weight: 800;
@@ -44,7 +43,6 @@
         }
         .header p { color: #666; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; }
 
-        /* ── Status bar ── */
         .status-bar {
             background: #ffffff08; border: 1px solid #ffffff15; border-radius: 50px;
             padding: 10px 24px; margin-bottom: 24px; font-size: 13px; color: #666;
@@ -62,7 +60,6 @@
         .toggle-switch::after { content:''; position:absolute; width:14px; height:14px; background:white; border-radius:50%; top:3px; left:3px; transition: left 0.3s; }
         .toggle-switch.on::after { left: 19px; }
 
-        /* ── Demo stuff ── */
         .demo-banner {
             background: linear-gradient(135deg,#f59e0b15,#f59e0b08);
             border: 1px solid #f59e0b40; border-radius: 12px;
@@ -79,7 +76,6 @@
         .demo-img-btn img { width:100%; height:70px; object-fit:cover; display:block; }
         .demo-img-btn .demo-label { font-size:10px; color:#666; text-align:center; padding:5px; background:#111; }
 
-        /* ── Camera ── */
         .camera-preview {
             width:100%; max-width:640px; margin-bottom:24px; border-radius:24px;
             overflow:hidden; border:1px solid #ffffff10; display:none; position:relative;
@@ -92,7 +88,6 @@
         }
         video { width:100%; display:block; }
 
-        /* ── Buttons grid ── */
         .buttons-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:640px; width:100%; margin-bottom:16px; }
 
         .btn {
@@ -121,11 +116,9 @@
         .btn.loading .icon { animation:spin 1s linear infinite; display:inline-block; }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-        /* ── Smart mode button (full width) ── */
         .smart-row { max-width:640px; width:100%; margin-bottom:16px; }
         .btn.smart { padding:20px; }
 
-        /* ── Ask box ── */
         .ask-box { max-width:640px; width:100%; margin-bottom:16px; display:flex; gap:10px; }
         .ask-box input {
             flex:1; background:#ffffff06; border:1px solid #667eea50; border-radius:50px;
@@ -140,8 +133,7 @@
         }
         .ask-box button:hover { opacity:0.85; transform:translateY(-1px); }
 
-        /* ── Mic button ── */
-        .mic-row { max-width:640px; width:100%; margin-bottom:20px; display:flex; justify-content:center; }
+        .mic-row { max-width:640px; width:100%; margin-bottom:20px; display:flex; justify-content:center; gap:12px; }
         .mic-btn {
             display:flex; align-items:center; gap:10px;
             background:#ffffff06; border:1px solid #ef444430; border-radius:50px;
@@ -153,6 +145,14 @@
             border-color:#ef4444; background:#ef444420;
             animation: pulse-red 1s ease infinite;
         }
+        .mic-btn-continuous {
+            display:flex; align-items:center; gap:10px;
+            background:#ffffff06; border:1px solid #a78bfa30; border-radius:50px;
+            padding:14px 20px; color:white; font-size:14px; font-weight:600;
+            cursor:pointer; transition:all 0.3s; backdrop-filter:blur(10px);
+        }
+        .mic-btn-continuous:hover { border-color:#a78bfa; background:#a78bfa10; transform:translateY(-2px); }
+        .mic-btn-continuous.on { border-color:#a78bfa; background:#a78bfa20; }
         @keyframes pulse-red {
             0%,100% { box-shadow:0 0 0 0 #ef444440; }
             50%      { box-shadow:0 0 0 10px #ef444400; }
@@ -160,7 +160,6 @@
         .mic-icon { font-size:20px; }
         #micStatus { font-size:12px; color:#666; }
 
-        /* ── Result box ── */
         .result-box {
             background:#ffffff06; border:1px solid #ffffff12; border-radius:20px;
             padding:28px; max-width:640px; width:100%; min-height:110px;
@@ -178,7 +177,6 @@
         }
         .result-box.has-result .confidence-badge { display:block; }
 
-        /* ── Footer ── */
         .footer { margin-top:40px; color:#333; font-size:12px; letter-spacing:1px; }
     </style>
 </head>
@@ -206,19 +204,19 @@
 
 <div class="demo-images" id="demoImages">
     <div class="demo-img-btn selected" id="demo-objects" onclick="selectDemoImage('objects')">
-        <img src="/static/cat.jpg" alt="objects"/>
+        <img src="/static/cat.jpg" alt="objects" onerror="handleImageError(this, 'cat.jpg')"/>
         <div class="demo-label">👁️ Objects</div>
     </div>
     <div class="demo-img-btn" id="demo-text" onclick="selectDemoImage('text')">
-        <img src="/static/text.jpg" alt="text"/>
+        <img src="/static/text.jpg" alt="text" onerror="handleImageError(this, 'text.jpg')"/>
         <div class="demo-label">📖 Text</div>
     </div>
     <div class="demo-img-btn" id="demo-scene" onclick="selectDemoImage('scene')">
-        <img src="/static/object.jpg" alt="scene"/>
+        <img src="/static/object.jpg" alt="scene" onerror="handleImageError(this, 'object.jpg')"/>
         <div class="demo-label">🌍 Scene</div>
     </div>
     <div class="demo-img-btn" id="demo-currency" onclick="selectDemoImage('currency')">
-        <img src="/static/currency.jpg" alt="currency"/>
+        <img src="/static/currency.jpg" alt="currency" onerror="handleImageError(this, 'currency.jpg')"/>
         <div class="demo-label">💵 Currency</div>
     </div>
 </div>
@@ -250,7 +248,6 @@
     </div>
 </div>
 
-<!-- Smart Mode — full width button -->
 <div class="smart-row">
     <div class="btn smart" onclick="runFeature('smart')" style="width:100%;">
         <div class="icon">🧠</div>
@@ -264,12 +261,16 @@
     <button onclick="askDrishti()">Ask 🤖</button>
 </div>
 
-<!-- Voice command button -->
+<!-- Two mic buttons: single command + continuous mode -->
 <div class="mic-row">
     <button class="mic-btn" id="micBtn" onclick="toggleMic()">
         <span class="mic-icon">🎤</span>
-        <span id="micLabel">Voice Command (Hindi / English)</span>
+        <span id="micLabel">Voice Command</span>
         <span id="micStatus"></span>
+    </button>
+    <button class="mic-btn-continuous" id="continuousBtn" onclick="toggleContinuous()">
+        <span>🔄</span>
+        <span id="continuousLabel">Continuous</span>
     </button>
 </div>
 
@@ -282,14 +283,14 @@
 <div class="footer">DRISHTI — SEEING THE WORLD THROUGH AI</div>
 
 <script>
-// ── State ────────────────────────────────────────────────────────────────────
-const BASE = 'http://127.0.0.1:5000';
+const BASE = window.location.origin;
 let videoStream      = null;
 let demoMode         = false;
 let selectedDemoImg  = 'objects';
 let mediaRecorder    = null;
 let isRecording      = false;
 let audioChunks      = [];
+let continuousMode   = false;
 
 const DEMO_IMAGES = {
     objects:  '/static/cat.jpg',
@@ -298,7 +299,21 @@ const DEMO_IMAGES = {
     currency: '/static/currency.jpg'
 };
 
-// ── Demo mode ────────────────────────────────────────────────────────────────
+// ── Image error handler ───────────────────────────────────────────────────────
+function handleImageError(imgElement, filename) {
+    console.error(`⚠️  Failed to load ${filename}`);
+    imgElement.style.background = '#333';
+    imgElement.style.color = '#f59e0b';
+    imgElement.textContent = '❌ Image not found';
+    
+    // Try to fetch the image to diagnose the issue
+    fetch(`/static/${filename}`)
+        .then(r => {
+            if (!r.ok) console.error(`   HTTP ${r.status} — file may not exist`);
+        })
+        .catch(e => console.error(`   Network error: ${e.message}`));
+}
+
 function toggleDemo() {
     demoMode = !demoMode;
     document.getElementById('demoToggle').classList.toggle('on', demoMode);
@@ -314,17 +329,48 @@ function selectDemoImage(type) {
     document.getElementById('demo-' + type).classList.add('selected');
 }
 
-// ── Image capture ─────────────────────────────────────────────────────────────
+function toggleContinuous() {
+    continuousMode = !continuousMode;
+    const btn = document.getElementById('continuousBtn');
+    const lbl = document.getElementById('continuousLabel');
+    if (continuousMode) {
+        btn.classList.add('on');
+        lbl.textContent = 'Continuous ON';
+    } else {
+        btn.classList.remove('on');
+        lbl.textContent = 'Continuous';
+        if (isRecording) stopRecording();
+    }
+}
+
+// ── Robust image loading with error handling ───────────────────────────────────
 async function getImage() {
     if (demoMode) {
         const url = DEMO_IMAGES[selectedDemoImg];
-        const res  = await fetch(url);
-        const blob = await res.blob();
-        return new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result.split(',')[1]);
-            reader.readAsDataURL(blob);
-        });
+        try {
+            const res  = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status} loading ${url}`);
+            }
+            const blob = await res.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    try {
+                        const b64 = reader.result.split(',')[1];
+                        if (!b64) throw new Error('Failed to extract base64');
+                        resolve(b64);
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                reader.onerror = () => reject(new Error('FileReader failed'));
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) {
+            console.error(`❌ Demo image error: ${e.message}`);
+            throw new Error(`Cannot load demo image: ${e.message}`);
+        }
     }
     return captureFrame();
 }
@@ -338,7 +384,6 @@ function captureFrame() {
     return canvas.toDataURL('image/jpeg').split(',')[1];
 }
 
-// ── Status check ──────────────────────────────────────────────────────────────
 async function checkStatus() {
     try {
         const res  = await fetch(`${BASE}/health`);
@@ -349,13 +394,12 @@ async function checkStatus() {
             document.getElementById('statusDot').className = 'status-dot';
         }
     } catch {
-        document.getElementById('status').textContent   = 'Offline ✗';
-        document.getElementById('status').className     = 'offline';
-        document.getElementById('statusDot').className  = 'status-dot offline';
+        document.getElementById('status').textContent  = 'Offline ✗';
+        document.getElementById('status').className    = 'offline';
+        document.getElementById('statusDot').className = 'status-dot offline';
     }
 }
 
-// ── Camera ────────────────────────────────────────────────────────────────────
 async function startCamera() {
     try {
         videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -367,7 +411,30 @@ async function startCamera() {
     }
 }
 
-// ── Text-to-speech (server first, browser fallback) ───────────────────────────
+async function speakAndWait(text, lang = 'en') {
+    return new Promise(async (resolve) => {
+        try {
+            const response = await fetch(`${BASE}/speak`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ text, lang })
+            });
+            if (!response.ok) throw new Error('speak error');
+            const blob  = await response.blob();
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.onended = () => resolve();
+            audio.onerror = () => resolve();
+            audio.play();
+        } catch {
+            const utt = new SpeechSynthesisUtterance(text);
+            utt.rate  = 0.9;
+            utt.lang  = lang === 'hi' ? 'hi-IN' : 'en-IN';
+            utt.onend = () => resolve();
+            window.speechSynthesis.speak(utt);
+        }
+    });
+}
+
 async function speak(text, lang = 'en') {
     try {
         const response = await fetch(`${BASE}/speak`, {
@@ -380,7 +447,6 @@ async function speak(text, lang = 'en') {
         const audio = new Audio(URL.createObjectURL(blob));
         audio.play();
     } catch {
-        // Fallback: browser SpeechSynthesis
         const utt = new SpeechSynthesisUtterance(text);
         utt.rate  = 0.9;
         utt.lang  = lang === 'hi' ? 'hi-IN' : 'en-IN';
@@ -388,11 +454,10 @@ async function speak(text, lang = 'en') {
     }
 }
 
-// ── Result display helper ─────────────────────────────────────────────────────
 function showResult(text, lang = 'en') {
     const resultEl  = document.getElementById('result');
     const resultBox = document.getElementById('resultBox');
-    resultEl.className  = 'active';
+    resultEl.className   = 'active';
     resultEl.textContent = text;
     resultBox.classList.add('has-result');
     speak(text, lang);
@@ -406,12 +471,10 @@ function showLoading(msg = '⚡ Processing...') {
     resultEl.textContent = msg;
 }
 
-// ── Run a feature button ───────────────────────────────────────────────────────
 async function runFeature(feature) {
     const btn = document.querySelector(`.btn.${feature}`);
     btn.classList.add('loading');
     showLoading();
-
     try {
         const image = await getImage();
         const res   = await fetch(`${BASE}/${feature}`, {
@@ -421,20 +484,18 @@ async function runFeature(feature) {
         });
         const data = await res.json();
         showResult(data.result);
-    } catch {
+    } catch (e) {
+        console.error(`Feature error (${feature}):`, e);
         document.getElementById('result').textContent =
-            'Error connecting to server. Make sure Flask is running.';
+            `Error: ${e.message}. Check console (F12) for details.`;
     }
-
     btn.classList.remove('loading');
 }
 
-// ── Ask Drishti ───────────────────────────────────────────────────────────────
 async function askDrishti() {
     const question = document.getElementById('askInput').value.trim();
     if (!question) return;
     showLoading('🤔 Thinking...');
-
     try {
         const image = await getImage();
         const res   = await fetch(`${BASE}/ask`, {
@@ -445,8 +506,9 @@ async function askDrishti() {
         const data = await res.json();
         showResult(data.result);
         document.getElementById('askInput').value = '';
-    } catch {
-        document.getElementById('result').textContent = 'Error connecting to server.';
+    } catch (e) {
+        console.error('Ask error:', e);
+        document.getElementById('result').textContent = `Error: ${e.message}`;
     }
 }
 
@@ -454,7 +516,6 @@ document.getElementById('askInput').addEventListener('keypress', e => {
     if (e.key === 'Enter') askDrishti();
 });
 
-// ── Voice command (Whisper) ───────────────────────────────────────────────────
 async function toggleMic() {
     if (isRecording) {
         stopRecording();
@@ -466,18 +527,15 @@ async function toggleMic() {
 async function startRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioChunks  = [];
+        audioChunks   = [];
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-
         mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
         mediaRecorder.onstop = () => {
             stream.getTracks().forEach(t => t.stop());
             processVoiceCommand();
         };
-
         mediaRecorder.start();
         isRecording = true;
-
         const micBtn = document.getElementById('micBtn');
         micBtn.classList.add('recording');
         document.getElementById('micLabel').textContent  = 'Recording... tap to stop';
@@ -491,10 +549,9 @@ function stopRecording() {
     if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
         isRecording = false;
-
         const micBtn = document.getElementById('micBtn');
         micBtn.classList.remove('recording');
-        document.getElementById('micLabel').textContent  = 'Voice Command (Hindi / English)';
+        document.getElementById('micLabel').textContent  = 'Voice Command';
         document.getElementById('micStatus').textContent = '';
         showLoading('🎤 Processing voice command...');
     }
@@ -509,23 +566,43 @@ async function processVoiceCommand() {
         const res  = await fetch(`${BASE}/voice`, { method: 'POST', body: formData });
         const data = await res.json();
 
+        console.log('Voice response:', data);
+
         if (data.status !== 'success') throw new Error(data.result);
 
-        // Show what was heard
-        document.getElementById('result').textContent =
-            `Heard: "${data.command}" → running ${data.action}...`;
+        const heardMsg = data.language === 'hi'
+            ? `🎤 सुना: "${data.command}"`
+            : `🎤 Heard: "${data.command}"`;
+        showLoading(heardMsg);
 
-        // Automatically run the detected action
-        await runFeature(data.action);
+        await new Promise(r => setTimeout(r, 800));
+
+        const resultEl  = document.getElementById('result');
+        const resultBox = document.getElementById('resultBox');
+        resultEl.className   = 'active';
+        resultEl.textContent = data.result;
+        resultBox.classList.add('has-result');
+
+        await speakAndWait(data.result, data.language === 'hi' ? 'hi' : 'en');
+
+        if (continuousMode && !isRecording) {
+            showLoading('🎤 Listening...');
+            startRecording();
+        } else {
+            document.getElementById('micLabel').textContent  = 'Voice Command';
+            document.getElementById('micStatus').textContent = '';
+            document.getElementById('micBtn').classList.remove('recording');
+        }
 
     } catch (e) {
-        document.getElementById('result').textContent =
-            'Voice command failed. Try again or check microphone permissions.';
-        console.error(e);
+        console.error('Voice error:', e);
+        document.getElementById('result').textContent = `Voice command failed: ${e.message}`;
+        continuousMode = false;
+        document.getElementById('continuousBtn').classList.remove('on');
+        document.getElementById('continuousLabel').textContent = 'Continuous';
     }
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
 checkStatus();
 startCamera();
 setInterval(checkStatus, 5000);
