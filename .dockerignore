@@ -1,0 +1,35 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment & secrets
+.env
+modules/.env
+
+# Model weights (downloaded at runtime / build time)
+*.pt
+*.bin
+model/
+.cache/
+
+# Test images (not needed in container)
+static/*.jpg
+static/*.jpeg
+static/*.png
+
+# Git
+.git/
+.gitignore
+
+# Editor / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Logs
+*.log

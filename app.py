@@ -13,8 +13,8 @@ from modules.ocr import read_text_from_camera
 from modules.scene import describe_scene
 from modules.currency import detect_currency
 
-# Load environment variables from .env file
-load_dotenv()
+# Load .env from project root (works locally; on cloud, env vars are injected by platform)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
 
 app = Flask(__name__)
 CORS(app)
@@ -150,6 +150,10 @@ def ask():
 
 @app.route('/voice', methods=['POST'])
 def voice():
+    """Transcribe voice command and return the detected action.
+    The frontend should then capture a camera frame and call the
+    appropriate endpoint (/detect, /read, /scene, /currency) separately.
+    """
     try:
         if 'audio' not in request.files:
             return jsonify({'result': 'No audio file received', 'status': 'error'}), 400
@@ -169,16 +173,12 @@ def voice():
 
         action = map_command_to_action(command)
 
-        #
         return jsonify({
-    'command': command,
-    'action': action,
-    'language': language,
-    'result': 'Camera feature not supported on cloud',
-    'status': 'error'
-})
-
-        
+            'command': command,
+            'action': action,
+            'language': language,
+            'status': 'success'
+        })
 
     except Exception as e:
         return jsonify({'result': str(e), 'status': 'error'})
@@ -193,3 +193,9 @@ def smart():
         return jsonify({'result': result, 'status': 'success'})
     except Exception as e:
         return jsonify({'result': str(e), 'status': 'error'})
+
+
+if __name__ == '__main__':
+    # Local dev only — gunicorn is used in production (Docker)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)

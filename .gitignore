@@ -3,10 +3,17 @@ model/
 __pycache__/
 *.pyc
 *.pyo
+
+# Secrets — never commit these
 .env
-*.jpg
-*.jpeg
-*.png
+modules/.env
+
+# Model weights (downloaded at runtime)
 *.pt
 *.zip
 .cache/
+
+# Test / sample images
+*.jpg
+*.jpeg
+*.png
