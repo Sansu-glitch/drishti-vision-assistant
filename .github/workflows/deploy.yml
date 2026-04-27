@@ -14,11 +14,25 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Push to Hugging Face Space
+      - name: Verify HF_TOKEN is set
+        run: |
+          if [ -z "${{ secrets.HF_TOKEN }}" ]; then
+            echo "ERROR: HF_TOKEN secret is not set in GitHub!"
+            exit 1
+          else
+            echo "HF_TOKEN is set (length: ${#HF_TOKEN})"
+          fi
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+
+      - name: Setup Git credentials
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          git remote add hf https://Sanskarrajput:$HF_TOKEN@huggingface.co/spaces/Sanskarrajput/drishti-vision-assistant
+          git config --global credential.helper store
+          echo "https://Sanskarrajput:${{ secrets.HF_TOKEN }}@huggingface.co" > ~/.git-credentials
+
+      - name: Push to Hugging Face Space
+        run: |
+          git remote add hf https://huggingface.co/spaces/Sanskarrajput/drishti-vision-assistant || true
           git push hf main --force
